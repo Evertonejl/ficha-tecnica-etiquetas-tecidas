@@ -1,13 +1,13 @@
 from flask import Flask, render_template, request, send_file
 import re
+import tempfile
+import os
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, Image, TableStyle
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet
 from datetime import datetime
 from reportlab.lib import colors
 from reportlab.lib.units import mm
-import os
-import webbrowser
 
 app = Flask(__name__)
 
@@ -15,7 +15,6 @@ app = Flask(__name__)
 # LIMPAR NOME DO ARQUIVO
 # ===============================
 def limpar_nome_arquivo(nome):
-    # remove caracteres inválidos
     nome = re.sub(r'[\\/*?:"<>|]', "", nome)
     return nome.strip()
 
@@ -30,7 +29,6 @@ def ler_txt(caminho):
 # EXTRAÇÃO MUCAD
 # ===============================
 def extrair_dados(texto):
-
     dados = {}
     cores = []
     total_metros = 0
@@ -40,7 +38,6 @@ def extrair_dados(texto):
 
     for linha in linhas:
         if re.match(r"^\s*\d+\s+\d+\s+0\.[0-9]", linha):
-
             partes = linha.split()
 
             if len(partes) >= 5:
@@ -82,7 +79,6 @@ def imagem_em_mm(caminho, largura_mm=None, altura_mm=None):
 # PDF
 # ===============================
 def gerar_pdf(dados, nome, desenho, batida, caminho_img=None, largura_mm=None, altura_mm=None):
-
     doc = SimpleDocTemplate(
         nome,
         pagesize=A4,
@@ -127,11 +123,11 @@ def gerar_pdf(dados, nome, desenho, batida, caminho_img=None, largura_mm=None, a
     t = Table(tabela, colWidths=[150, 150, 150])
 
     t.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#1f2937")),
-        ('TEXTCOLOR', (0,0), (-1,0), colors.white),
-        ('GRID', (0,0), (-1,-1), 0.5, colors.grey),
-        ('ALIGN',(1,1),(-1,-1),'CENTER'),
-        ('BACKGROUND', (0,1), (-1,-1), colors.whitesmoke),
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#1f2937")),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+        ('ALIGN', (1, 1), (-1, -1), 'CENTER'),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.whitesmoke),
     ]))
 
     e.append(t)
@@ -163,49 +159,54 @@ def index():
 
 @app.route("/upload", methods=["POST"])
 def upload():
-
-    # TXT
+    # TXT — salvo em arquivo temporário
     arquivo = request.files["arquivo"]
-    caminho_txt = "temp.txt"
-    arquivo.save(caminho_txt)
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".txt") as tmp_txt:
+        arquivo.save(tmp_txt.name)
+        caminho_txt = tmp_txt.name
 
     texto = ler_txt(caminho_txt)
     dados = extrair_dados(texto)
+    os.unlink(caminho_txt)  # limpa o arquivo temporário
 
     # CAMPOS
     desenho = request.form.get("desenho", "")
     batida = request.form.get("batida", "")
 
-    # NOME DO PDF (NOVO)
+    # NOME DO PDF
     nome_pdf = request.form.get("nome_pdf", "ficha_tecnica")
     nome_pdf = limpar_nome_arquivo(nome_pdf)
-
     if not nome_pdf.lower().endswith(".pdf"):
         nome_pdf += ".pdf"
 
-    # TAMANHO
+    # TAMANHO DA IMAGEM
     largura_mm = request.form.get("largura_mm")
     altura_mm = request.form.get("altura_mm")
-
     largura_mm = float(largura_mm) if largura_mm else None
     altura_mm = float(altura_mm) if altura_mm else None
 
-    # IMAGEM
+    # IMAGEM — salva em arquivo temporário
     imagem = request.files.get("imagem")
     caminho_img = None
-
     if imagem and imagem.filename != "":
-        caminho_img = "etiqueta.png"
-        imagem.save(caminho_img)
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmp_img:
+            imagem.save(tmp_img.name)
+            caminho_img = tmp_img.name
 
-    # GERAR PDF
-    gerar_pdf(dados, nome_pdf, desenho, batida, caminho_img, largura_mm, altura_mm)
+    # GERAR PDF em arquivo temporário
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp_pdf:
+        caminho_pdf = tmp_pdf.name
 
-    return send_file(nome_pdf, as_attachment=True, download_name=nome_pdf)
+    gerar_pdf(dados, caminho_pdf, desenho, batida, caminho_img, largura_mm, altura_mm)
+
+    # Limpa imagem temporária se existir
+    if caminho_img and os.path.exists(caminho_img):
+        os.unlink(caminho_img)
+
+    return send_file(caminho_pdf, as_attachment=True, download_name=nome_pdf)
 
 # ===============================
 # MAIN
 # ===============================
 if __name__ == "__main__":
-    webbrowser.open("http://127.0.0.1:5000")
-    app.run(debug=False, use_reloader=False)
+    app.run(debug=False)
