@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Gerador Ficha Técnica</title>
+
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial;
+            background: linear-gradient(135deg, #1f2937, #111827);
+            color: #f3f4f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background: #1f2937;
+            padding: 40px;
+            border-radius: 12px;
+            width: 420px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+
+        label {
+            font-size: 14px;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 6px;
+            border: none;
+            background: #374151;
+            color: white;
+        }
+
+        input::file-selector-button {
+            background: #2563eb;
+            border: none;
+            padding: 6px 10px;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #2563eb;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-size: 15px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h2>Ficha Técnica MuCAD</h2>
+
+        <form action="/upload" method="post" enctype="multipart/form-data">
+
+            <label>Arquivo MuCAD (.txt)</label>
+            <input type="file" name="arquivo" accept=".txt" required>
+
+            <label>Nome do Desenho</label>
+            <input type="text" name="desenho" placeholder="Ex: FIH3940">
+
+            <label>Batida</label>
+            <input type="text" name="batida" placeholder="Ex: 27,8">
+
+            <label>Imagem da Etiqueta</label>
+            <input type="file" name="imagem" accept="image/*">
+            <label>Largura (mm):</label>
+            <input type="number" name="largura_mm" step="0.1">
+
+            <label>Altura (mm):</label>
+            <input type="number" name="altura_mm" step="0.1">
+            
+            <label>Nome do PDF:</label>
+            <input type="text" name="nome_pdf" placeholder="Ex: relatorio" required>
+
+            <button type="submit">Gerar Ficha Técnica</button>
+
+        </form>
+    </div>
+
+</body>
+
+</html>
