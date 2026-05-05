@@ -1,111 +1,263 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-br">
-
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Gerador Ficha Técnica</title>
 
     <style>
-        body {
-            font-family: 'Segoe UI', Arial;
-            background: linear-gradient(135deg, #1f2937, #111827);
-            color: #f3f4f6;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
 
-        .container {
-            background: #1f2937;
-            padding: 40px;
-            border-radius: 12px;
-            width: 420px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-        }
+      body {
+        font-family: "Segoe UI", Arial, sans-serif;
+        background: linear-gradient(135deg, #1f2937, #111827);
+        color: #f3f4f6;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+      }
 
-        h2 {
-            text-align: center;
-            margin-bottom: 25px;
-            font-weight: 600;
-        }
+      .container {
+        background: #1f2937;
+        padding: 24px 28px;
+        border-radius: 12px;
+        width: 100%;
+        max-width: 600px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      }
 
-        label {
-            font-size: 14px;
-            margin-bottom: 5px;
-            display: block;
-        }
+      h2 {
+        text-align: center;
+        margin-bottom: 18px;
+        font-weight: 600;
+        font-size: 1.1rem;
+      }
 
-        input {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border-radius: 6px;
-            border: none;
-            background: #374151;
-            color: white;
-        }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0 20px;
+      }
 
-        input::file-selector-button {
-            background: #2563eb;
-            border: none;
-            padding: 6px 10px;
-            color: white;
-            border-radius: 4px;
-            cursor: pointer;
-        }
+      .full {
+        grid-column: 1 / -1;
+      }
 
-        button {
-            width: 100%;
-            padding: 12px;
-            background: #2563eb;
-            border: none;
-            border-radius: 6px;
-            color: white;
-            font-size: 15px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
+      .field {
+        margin-bottom: 11px;
+      }
 
-        button:hover {
-            background: #1d4ed8;
+      label {
+        font-size: 12px;
+        margin-bottom: 4px;
+        display: block;
+        color: #d1d5db;
+      }
+
+      input[type="text"],
+      input[type="number"],
+      input[type="file"],
+      textarea {
+        width: 100%;
+        padding: 7px 10px;
+        border-radius: 6px;
+        border: none;
+        background: #374151;
+        color: white;
+        font-size: 13px;
+        outline: none;
+      }
+
+      textarea {
+        resize: vertical;
+        min-height: 60px;
+        font-family: inherit;
+      }
+
+      input[type="file"] {
+        padding: 5px 8px;
+      }
+
+      input::file-selector-button {
+        background: #2563eb;
+        border: none;
+        padding: 4px 9px;
+        color: white;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 11px;
+        margin-right: 6px;
+      }
+
+      .medidas-row {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+      }
+
+      .medidas-row input {
+        flex: 1;
+      }
+
+      .medidas-sep {
+        color: #9ca3af;
+        font-size: 1rem;
+        flex-shrink: 0;
+      }
+
+      .medidas-badge {
+        margin-top: 5px;
+        display: inline-flex;
+        align-items: center;
+        padding: 3px 10px;
+        border-radius: 20px;
+        background: #1e3a5f;
+        border: 1px solid rgba(37, 99, 235, 0.35);
+        font-size: 11px;
+        font-weight: 600;
+        color: #60a5fa;
+        min-height: 22px;
+        transition: opacity 0.2s;
+      }
+
+      .medidas-badge.vazio {
+        opacity: 0;
+      }
+
+      .divider {
+        border: none;
+        border-top: 1px solid #374151;
+        margin: 12px 0 10px;
+      }
+
+      button[type="submit"] {
+        width: 100%;
+        padding: 10px;
+        background: #2563eb;
+        border: none;
+        border-radius: 6px;
+        color: white;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 4px;
+        transition: background 0.2s;
+      }
+
+      button[type="submit"]:hover {
+        background: #1d4ed8;
+      }
+
+      @media (max-width: 480px) {
+        .grid {
+          grid-template-columns: 1fr;
         }
+        .full {
+          grid-column: 1;
+        }
+      }
     </style>
-</head>
+  </head>
 
-<body>
-
+  <body>
     <div class="container">
-        <h2>Ficha Técnica MuCAD</h2>
+      <h2>Ficha Técnica MuCAD</h2>
 
-        <form action="/upload" method="post" enctype="multipart/form-data">
-
+      <form action="/upload" method="post" enctype="multipart/form-data">
+        <div class="grid">
+          <div class="field full">
             <label>Arquivo MuCAD (.txt)</label>
-            <input type="file" name="arquivo" accept=".txt" required>
+            <input type="file" name="arquivo" accept=".txt" required />
+          </div>
 
+          <div class="field">
             <label>Nome do Desenho</label>
-            <input type="text" name="desenho" placeholder="Ex: FIH3940">
+            <input type="text" name="desenho" placeholder="Ex: FIH3940" />
+          </div>
 
+          <div class="field">
             <label>Batida</label>
-            <input type="text" name="batida" placeholder="Ex: 27,8">
+            <input type="text" name="batida" placeholder="Ex: 27,8" />
+          </div>
 
+          <div class="field full">
             <label>Imagem da Etiqueta</label>
-            <input type="file" name="imagem" accept="image/*">
-            <label>Largura (mm):</label>
-            <input type="number" name="largura_mm" step="0.1">
+            <input type="file" name="imagem" accept="image/*" />
+          </div>
 
-            <label>Altura (mm):</label>
-            <input type="number" name="altura_mm" step="0.1">
-            
-            <label>Nome do PDF:</label>
-            <input type="text" name="nome_pdf" placeholder="Ex: relatorio" required>
+          <div class="field">
+            <label>Medidas da arte (mm)</label>
+            <div class="medidas-row">
+              <input
+                type="number"
+                id="largura_mm"
+                name="largura_mm"
+                placeholder="Largura"
+                step="0.1"
+              />
+              <span class="medidas-sep">×</span>
+              <input
+                type="number"
+                id="altura_mm"
+                name="altura_mm"
+                placeholder="Altura"
+                step="0.1"
+              />
+            </div>
+            <div id="medidas-badge" class="medidas-badge vazio">
+              <span id="medidas-texto"></span>
+            </div>
+          </div>
 
-            <button type="submit">Gerar Ficha Técnica</button>
+          <div class="field">
+            <label>Nome do PDF</label>
+            <input
+              type="text"
+              name="nome_pdf"
+              placeholder="Ex: relatorio"
+              required
+            />
+          </div>
 
-        </form>
+          <div class="field full">
+            <label>Anotações</label>
+            <textarea
+              name="anotacoes"
+              placeholder="Observações que aparecerão no PDF..."
+            ></textarea>
+          </div>
+        </div>
+
+        <hr class="divider" />
+        <button type="submit">⬇ Gerar Ficha Técnica</button>
+      </form>
     </div>
 
-</body>
+    <script>
+      const lEl = document.getElementById("largura_mm");
+      const aEl = document.getElementById("altura_mm");
+      const badge = document.getElementById("medidas-badge");
+      const texto = document.getElementById("medidas-texto");
 
+      function update() {
+        const l = lEl.value.trim();
+        const a = aEl.value.trim();
+        if (l || a) {
+          texto.textContent = (l || "?") + " × " + (a || "?") + " mm";
+          badge.classList.remove("vazio");
+        } else {
+          badge.classList.add("vazio");
+        }
+      }
+
+      lEl.addEventListener("input", update);
+      aEl.addEventListener("input", update);
+    </script>
+  </body>
 </html>

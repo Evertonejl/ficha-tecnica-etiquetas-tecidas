@@ -76,9 +76,9 @@ def imagem_em_mm(caminho, largura_mm=None, altura_mm=None):
     return img
 
 # ===============================
-# PDF
+# PDF — agora aceita anotacoes
 # ===============================
-def gerar_pdf(dados, nome, desenho, batida, caminho_img=None, largura_mm=None, altura_mm=None):
+def gerar_pdf(dados, nome, desenho, batida, caminho_img=None, largura_mm=None, altura_mm=None, anotacoes=None):
     doc = SimpleDocTemplate(
         nome,
         pagesize=A4,
@@ -103,6 +103,13 @@ def gerar_pdf(dados, nome, desenho, batida, caminho_img=None, largura_mm=None, a
 
     if batida:
         e.append(Paragraph(f"<b>Batida:</b> {batida}", styles["Normal"]))
+
+    if largura_mm and altura_mm:
+        e.append(Paragraph(f"<b>Medidas da Arte:</b> {largura_mm:g} x {altura_mm:g} mm", styles["Normal"]))
+    elif largura_mm:
+        e.append(Paragraph(f"<b>Medidas da Arte:</b> {largura_mm:g} mm (largura)", styles["Normal"]))
+    elif altura_mm:
+        e.append(Paragraph(f"<b>Medidas da Arte:</b> {altura_mm:g} mm (altura)", styles["Normal"]))
 
     e.append(Spacer(1, 20))
 
@@ -143,6 +150,18 @@ def gerar_pdf(dados, nome, desenho, batida, caminho_img=None, largura_mm=None, a
         e.append(img)
         e.append(Spacer(1, 30))
 
+    # ── ANOTAÇÕES ──────────────────────────────────────────────
+    if anotacoes and anotacoes.strip():
+        e.append(Paragraph("Anotações", styles["Heading2"]))
+        e.append(Spacer(1, 8))
+        # Preserva quebras de linha substituindo \n por <br/>
+        texto_anotacoes = anotacoes.strip().replace("\r\n", "\n").replace("\r", "\n")
+        linhas_anotacoes = texto_anotacoes.split("\n")
+        for linha in linhas_anotacoes:
+            e.append(Paragraph(linha if linha.strip() else "&nbsp;", styles["Normal"]))
+        e.append(Spacer(1, 20))
+    # ──────────────────────────────────────────────────────────
+
     e.append(Paragraph(
         "Relatório técnico gerado automaticamente a partir do MuCAD.",
         styles["Italic"]
@@ -173,6 +192,9 @@ def upload():
     desenho = request.form.get("desenho", "")
     batida = request.form.get("batida", "")
 
+    # ANOTAÇÕES — novo campo
+    anotacoes = request.form.get("anotacoes", "")
+
     # NOME DO PDF
     nome_pdf = request.form.get("nome_pdf", "ficha_tecnica")
     nome_pdf = limpar_nome_arquivo(nome_pdf)
@@ -197,7 +219,7 @@ def upload():
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp_pdf:
         caminho_pdf = tmp_pdf.name
 
-    gerar_pdf(dados, caminho_pdf, desenho, batida, caminho_img, largura_mm, altura_mm)
+    gerar_pdf(dados, caminho_pdf, desenho, batida, caminho_img, largura_mm, altura_mm, anotacoes)
 
     # Limpa imagem temporária se existir
     if caminho_img and os.path.exists(caminho_img):
