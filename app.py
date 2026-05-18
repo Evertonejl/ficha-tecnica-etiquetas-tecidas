@@ -91,7 +91,7 @@ def gerar_pdf(dados, nome, desenho, batida, caminho_img=None, largura_mm=None, a
     styles = getSampleStyleSheet()
     e = []
 
-    e.append(Paragraph("FICHA TÉCNICA DE CONSUMO", styles["Title"]))
+    e.append(Paragraph("FICHA TÉCNICA", styles["Title"]))
     e.append(Spacer(1, 15))
 
     data = datetime.now().strftime("%d/%m/%Y")
@@ -122,7 +122,7 @@ def gerar_pdf(dados, nome, desenho, batida, caminho_img=None, largura_mm=None, a
         tabela.append([c["cor"], str(c["picks"]), str(c["metros"])])
 
     tabela.append([
-        "TOTAL",
+        "TOTAL DE PASSADAS",
         str(dados["total_picks"]),
         str(dados["total_consumo"])
     ])
@@ -163,7 +163,7 @@ def gerar_pdf(dados, nome, desenho, batida, caminho_img=None, largura_mm=None, a
     # ──────────────────────────────────────────────────────────
 
     e.append(Paragraph(
-        "Relatório técnico gerado automaticamente a partir do MuCAD.",
+        "Relatório técnico Supplier têxtil.",
         styles["Italic"]
     ))
 
